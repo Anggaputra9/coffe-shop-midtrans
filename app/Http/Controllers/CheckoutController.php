@@ -72,6 +72,9 @@ class CheckoutController extends Controller
             $snapToken = $this->midtrans->createSnapToken($order);
             $order->update(['snap_token' => $snapToken]);
 
+            // Remember email so the customer can see their purchase history
+            session(['customer_email' => $order->customer_email]);
+
             return response()->json([
                 'success' => true,
                 'snap_token' => $snapToken,

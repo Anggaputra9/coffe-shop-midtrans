@@ -12,7 +12,10 @@
                 <span class="text-xl">☕</span>
                 <span class="text-sm font-bold">Artisan Coffee</span>
             </a>
-            <span class="rounded-full bg-cream-dark px-3 py-1 text-xs font-semibold text-coffee-dark">{{ $order->order_number }}</span>
+            <div class="flex items-center gap-2">
+                <a href="/riwayat" class="rounded-full border border-cream-dark px-3 py-1 text-xs font-semibold text-warm-gray transition hover:border-coffee-dark hover:text-coffee-dark">Riwayat</a>
+                <span class="rounded-full bg-cream-dark px-3 py-1 text-xs font-semibold text-coffee-dark">{{ $order->order_number }}</span>
+            </div>
         </div>
     </nav>
 
