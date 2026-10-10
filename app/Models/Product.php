@@ -7,6 +7,13 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Product extends Model
 {
+    public const CATEGORIES = [
+        'espresso' => 'Espresso Based',
+        'manual_brew' => 'Manual Brew',
+        'non_coffee' => 'Non Coffee',
+        'pastry' => 'Pastry & Snack',
+    ];
+
     protected $guarded = ['id'];
 
     protected $casts = [

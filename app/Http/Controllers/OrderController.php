@@ -8,45 +8,33 @@ use Illuminate\Http\Request;
 class OrderController extends Controller
 {
     /**
-     * Show purchase history scoped to the email stored in session.
+     * Show all transactions (cashier mode) with optional date & status filters.
      */
     public function history(Request $request)
     {
-        $email = session('customer_email');
+        $filters = $request->validate([
+            'date_from' => ['nullable', 'date'],
+            'date_to' => ['nullable', 'date', 'after_or_equal:date_from'],
+            'status' => ['nullable', 'in:pending,paid,expired,failed'],
+        ]);
 
-        $orders = $email
-            ? Order::where('customer_email', $email)
-                ->with('items.product')
-                ->latest()
-                ->paginate(10)
-                ->withQueryString()
-            : null;
+        $orders = Order::query()
+            ->with('items.product')
+            ->when($filters['date_from'] ?? null, fn ($q, $date) => $q->whereDate('created_at', '>=', $date))
+            ->when($filters['date_to'] ?? null, fn ($q, $date) => $q->whereDate('created_at', '<=', $date))
+            ->when($filters['status'] ?? null, fn ($q, $status) => $q->where('payment_status', $status))
+            ->latest()
+            ->paginate(15)
+            ->withQueryString();
 
-        return view('orders.history', compact('orders', 'email'));
-    }
+        $stats = Order::query()
+            ->when($filters['date_from'] ?? null, fn ($q, $date) => $q->whereDate('created_at', '>=', $date))
+            ->when($filters['date_to'] ?? null, fn ($q, $date) => $q->whereDate('created_at', '<=', $date))
+            ->when($filters['status'] ?? null, fn ($q, $status) => $q->where('payment_status', $status))
+            ->selectRaw('count(*) as total_transactions, coalesce(sum(total_amount), 0) as gross_total')
+            ->first();
 
-    /**
-     * Store the lookup email in session and redirect to history.
-     */
-    public function lookup(Request $request)
-    {
-        $validated = $request->validate([
-            'customer_email' => ['required', 'email'],
-        ], [], ['customer_email' => 'Email']);
-
-        session(['customer_email' => $validated['customer_email']]);
-
-        return redirect()->route('orders.history');
-    }
-
-    /**
-     * Forget the session email (switch account).
-     */
-    public function forgetEmail()
-    {
-        session()->forget('customer_email');
-
-        return redirect()->route('orders.history');
+        return view('orders.history', compact('orders', 'filters', 'stats'));
     }
 
     /**

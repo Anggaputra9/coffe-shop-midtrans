@@ -11,57 +11,73 @@ class RiwayatPembelianTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_history_shows_email_lookup_form_without_session(): void
+    public function test_history_shows_all_transactions(): void
     {
+        $product = $this->createProduct();
+        $first = $this->createOrder('budi@example.com', $product, 'paid');
+        $second = $this->createOrder('andi@example.com', $product, 'pending');
+
         $this->get('/riwayat')
             ->assertOk()
-            ->assertSee('Lihat Riwayat Pesanan Anda')
-            ->assertDontSee('Riwayat untuk');
+            ->assertSee($first->order_number)
+            ->assertSee($second->order_number);
     }
 
-    public function test_lookup_stores_email_and_shows_empty_history(): void
+    public function test_history_shows_stats(): void
     {
-        $this->post('/riwayat', ['customer_email' => 'budi@example.com'])
-            ->assertRedirect('/riwayat');
+        $product = $this->createProduct();
+        $this->createOrder('budi@example.com', $product, 'paid');
+        $this->createOrder('andi@example.com', $product, 'pending');
 
-        $this->withSession(['customer_email' => 'budi@example.com'])
-            ->get('/riwayat')
+        $response = $this->get('/riwayat');
+
+        $response->assertOk()
+            ->assertSee('Total Transaksi', false)
+            ->assertSee('Total Penjualan', false)
+            ->assertSee('Rp 70.600'); // 2 orders × 35.300
+    }
+
+    public function test_history_filters_by_status(): void
+    {
+        $product = $this->createProduct();
+        $paid = $this->createOrder('budi@example.com', $product, 'paid');
+        $pending = $this->createOrder('andi@example.com', $product, 'pending');
+
+        $this->get('/riwayat?status=paid')
             ->assertOk()
-            ->assertSee('budi@example.com')
-            ->assertSee('Belum Ada Pesanan');
+            ->assertSee($paid->order_number)
+            ->assertDontSee($pending->order_number);
     }
 
-    public function test_history_only_lists_orders_matching_session_email(): void
+    public function test_history_filters_by_date_range(): void
     {
-        $product = Product::create([
+        $product = $this->createProduct();
+        $today = $this->createOrder('budi@example.com', $product, 'paid');
+        $old = $this->createOrder('andi@example.com', $product, 'paid');
+        $old->forceFill(['created_at' => now()->subDays(10)])->save();
+
+        $this->get('/riwayat?date_from='.now()->subDay()->toDateString())
+            ->assertOk()
+            ->assertSee($today->order_number)
+            ->assertDontSee($old->order_number);
+    }
+
+    public function test_history_rejects_invalid_status(): void
+    {
+        $this->get('/riwayat?status=hacked')->assertStatus(302);
+    }
+
+    private function createProduct(): Product
+    {
+        return Product::create([
             'name' => 'Latte',
-            'slug' => 'latte',
+            'slug' => 'latte-'.uniqid(),
             'category' => 'espresso',
             'base_price' => 30000,
         ]);
-
-        $mine = $this->createOrder('budi@example.com', $product);
-        $others = $this->createOrder('orang@example.com', $product);
-
-        $this->withSession(['customer_email' => 'budi@example.com'])
-            ->get('/riwayat')
-            ->assertOk()
-            ->assertSee($mine->order_number)
-            ->assertDontSee($others->order_number);
     }
 
-    public function test_forget_clears_session_email(): void
-    {
-        $this->withSession(['customer_email' => 'budi@example.com'])
-            ->post('/riwayat/lupa')
-            ->assertRedirect('/riwayat');
-
-        $this->withSession([])
-            ->get('/riwayat')
-            ->assertSee('Lihat Riwayat Pesanan Anda');
-    }
-
-    private function createOrder(string $email, Product $product): Order
+    private function createOrder(string $email, Product $product, string $status): Order
     {
         $order = Order::create([
             'order_number' => Order::generateOrderNumber(),
@@ -73,7 +89,7 @@ class RiwayatPembelianTest extends TestCase
             'tax_amount' => 3300,
             'service_fee' => 2000,
             'total_amount' => 35300,
-            'payment_status' => 'paid',
+            'payment_status' => $status,
         ]);
 
         $order->items()->create([
