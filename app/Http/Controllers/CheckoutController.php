@@ -50,8 +50,6 @@ class CheckoutController extends Controller
                 $order = Order::create([
                     'order_number' => Order::generateOrderNumber(),
                     'customer_name' => $validated['customer_name'],
-                    'customer_email' => $validated['customer_email'],
-                    'customer_phone' => $validated['customer_phone'],
                     'order_type' => $validated['order_type'],
                     'table_or_notes' => $validated['table_or_notes'] ?? null,
                     'subtotal' => $subtotal,

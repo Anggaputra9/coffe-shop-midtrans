@@ -1,14 +1,6 @@
 <div>
-    <label class="mb-1 block text-sm font-semibold text-coffee-dark">Nama Lengkap *</label>
-    <input type="text" x-model="checkout.customer_name" required class="w-full rounded-xl border border-cream-dark bg-cream/50 px-4 py-2.5 text-sm text-coffee-dark outline-none transition focus:border-warm-amber focus:ring-2 focus:ring-warm-amber/20" placeholder="Masukkan nama lengkap">
-</div>
-<div>
-    <label class="mb-1 block text-sm font-semibold text-coffee-dark">Email *</label>
-    <input type="email" x-model="checkout.customer_email" required class="w-full rounded-xl border border-cream-dark bg-cream/50 px-4 py-2.5 text-sm text-coffee-dark outline-none transition focus:border-warm-amber focus:ring-2 focus:ring-warm-amber/20" placeholder="email@example.com">
-</div>
-<div>
-    <label class="mb-1 block text-sm font-semibold text-coffee-dark">No. WhatsApp *</label>
-    <input type="tel" x-model="checkout.customer_phone" required class="w-full rounded-xl border border-cream-dark bg-cream/50 px-4 py-2.5 text-sm text-coffee-dark outline-none transition focus:border-warm-amber focus:ring-2 focus:ring-warm-amber/20" placeholder="08xxxxxxxxxx">
+    <label class="mb-1 block text-sm font-semibold text-coffee-dark">Atas Nama *</label>
+    <input type="text" x-model="checkout.customer_name" required maxlength="100" class="w-full rounded-xl border border-cream-dark bg-cream/50 px-4 py-2.5 text-sm text-coffee-dark outline-none transition focus:border-warm-amber focus:ring-2 focus:ring-warm-amber/20" placeholder="Nama pemesan">
 </div>
 <div>
     <label class="mb-1 block text-sm font-semibold text-coffee-dark">Tipe Pesanan *</label>

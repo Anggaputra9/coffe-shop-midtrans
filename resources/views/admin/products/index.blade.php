@@ -40,8 +40,8 @@
         <p class="mt-1 text-sm text-warm-gray">Tambahkan menu pertama Anda.</p>
     </div>
 @else
-    <div class="overflow-hidden rounded-2xl border border-cream-dark bg-white">
-        <table class="w-full text-left text-sm">
+    <div class="overflow-x-auto rounded-2xl border border-cream-dark bg-white">
+        <table class="w-full min-w-[720px] text-left text-sm">
             <thead class="border-b border-cream-dark bg-cream/50 text-[11px] uppercase tracking-wider text-warm-gray">
                 <tr>
                     <th class="px-5 py-3 font-bold">Menu</th>

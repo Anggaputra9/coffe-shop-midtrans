@@ -62,6 +62,17 @@ class MidtransService
         // Tax line item already added above
         $itemsTotal += $order->tax_amount;
 
+        $customerDetails = [
+            'first_name' => $order->customer_name,
+        ];
+
+        if ($order->customer_email) {
+            $customerDetails['email'] = $order->customer_email;
+        }
+        if ($order->customer_phone) {
+            $customerDetails['phone'] = $order->customer_phone;
+        }
+
         $payload = [
             'transaction_details' => [
                 'order_id' => $order->order_number,
@@ -69,11 +80,7 @@ class MidtransService
                 'gross_amount' => $itemsTotal,
             ],
             'item_details' => $itemDetails,
-            'customer_details' => [
-                'first_name' => $order->customer_name,
-                'email' => $order->customer_email,
-                'phone' => $order->customer_phone,
-            ],
+            'customer_details' => $customerDetails,
             'callbacks' => [
                 'finish' => url('/orders/' . $order->uuid),
             ],

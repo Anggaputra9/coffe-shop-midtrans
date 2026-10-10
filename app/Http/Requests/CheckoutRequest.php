@@ -15,8 +15,6 @@ class CheckoutRequest extends FormRequest
     {
         return [
             'customer_name' => ['required', 'string', 'max:100'],
-            'customer_email' => ['required', 'email', 'max:255'],
-            'customer_phone' => ['required', 'string', 'regex:/^(\+62|62|08)\d{8,13}$/'],
             'order_type' => ['required', 'in:dine_in,takeaway,pickup'],
             'table_or_notes' => ['nullable', 'string', 'max:500'],
             'items' => ['required', 'array', 'min:1'],
@@ -31,10 +29,18 @@ class CheckoutRequest extends FormRequest
         ];
     }
 
+    public function attributes(): array
+    {
+        return [
+            'customer_name' => 'nama pemesan',
+            'order_type' => 'tipe pesanan',
+            'items' => 'item pesanan',
+        ];
+    }
+
     public function messages(): array
     {
         return [
-            'customer_phone.regex' => 'Masukkan nomor WhatsApp yang valid (08xx / +62xx).',
             'items.required' => 'Keranjang belanja tidak boleh kosong.',
             'items.min' => 'Minimal 1 item untuk checkout.',
         ];

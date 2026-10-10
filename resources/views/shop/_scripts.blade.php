@@ -16,7 +16,7 @@ function coffeeShop() {
             { key: 'pastry', label: 'Pastry' },
         ],
         customize: { size: 'regular', bean: 'house_blend', milk: 'dairy', sweetness: 'normal', ice: 'normal' },
-        checkout: { customer_name: '', customer_email: '', customer_phone: '', order_type: 'dine_in', table_or_notes: '' },
+        checkout: { customer_name: '', order_type: 'dine_in', table_or_notes: '' },
 
         get computedUnitPrice() {
             if (!this.currentProduct) return 0;
